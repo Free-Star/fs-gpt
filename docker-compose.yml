@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  fsgpt:
+    build: .
+    container_name: fsgpt
+    ports:
+      - "3000:80"
+    environment:
+      - APP_PASSWORD=${APP_PASSWORD:-defaultpassword}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    restart: unless-stopped 
