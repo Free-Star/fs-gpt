@@ -5,8 +5,5 @@ services:
     build: .
     container_name: fsgpt
     ports:
-      - "3000:80"
-    environment:
-      - APP_PASSWORD=${APP_PASSWORD:-defaultpassword}
-      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - "3000:1006"
     restart: unless-stopped 

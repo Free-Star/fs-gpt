@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { ChatSession } from '@/types/chat'
-import { useThemeStore } from '@/stores/theme'
 import ColorPicker from '../common/ColorPicker.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
-const props = defineProps<{
+// 添加 props 定义
+defineProps<{
   sessions: ChatSession[]
   isOpen: boolean
   activeSessionId: number
@@ -18,7 +18,6 @@ const emit = defineEmits<{
   'delete-session': [id: number]
 }>()
 
-const themeStore = useThemeStore()
 const authStore = useAuthStore()
 const router = useRouter()
 

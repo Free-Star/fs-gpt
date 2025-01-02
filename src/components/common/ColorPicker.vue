@@ -23,7 +23,7 @@ const emit = defineEmits<{
 }>()
 
 const selectTheme = (theme: string) => {
-  themeStore.setTheme(theme as keyof typeof themes)
+  themeStore.setTheme(theme as 'light' | 'dark' | 'blue' | 'green' | 'orange')
   emit('select', theme)
   emit('update:isOpen', false)
 }

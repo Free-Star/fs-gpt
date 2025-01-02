@@ -13,7 +13,7 @@ const md = new MarkdownIt({
   breaks: true,
   linkify: true,
   typographer: true,
-  highlight: function (str, lang) {
+  highlight: function (str: string, lang: string) {
     // 为代码块添加语言标识和复制按钮
     return `<div class="code-block">
               <div class="code-header">
@@ -128,8 +128,6 @@ const handleClick = async (event: MouseEvent) => {
     }
   }
 }
-
-const emit = defineEmits<{}>()
 </script>
 
 <template>

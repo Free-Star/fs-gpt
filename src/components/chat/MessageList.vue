@@ -19,8 +19,6 @@ const scrollToBottom = () => {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
   }
 }
-
-const emit = defineEmits<{}>()
 </script>
 
 <template>

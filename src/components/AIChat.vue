@@ -13,12 +13,6 @@ const activeSessionId = ref<number>(0)
 const isTyping = ref(false)
 const isSidebarOpen = ref(true)
 
-// 系统提示词
-const systemMessage = {
-  role: 'system',
-  content: '你是一个友好的AI助手，请用简洁、专业的方式回答问题。'
-}
-
 // 添加 ref 用于获取 MessageInput 组件实例
 const messageInput = ref()
 
@@ -119,14 +113,19 @@ const handleSendMessage = async (content: string) => {
   isTyping.value = true
   
   try {
-    const messageHistory = [
+    const systemMessage: ChatMessage = {
+      id: Date.now() * 1000 - 1,
+      role: 'system',
+      content: '你是一个友好的AI助手，请用简洁、专业的方式回答问题。',
+      timestamp: formatTimestamp()
+    }
+    
+    const messageHistory: ChatMessage[] = [
       systemMessage,
-      ...messages.value
-        .filter(m => m.status !== 'error')
-        .map(m => ({
-          role: m.role,
-          content: m.content
-        }))
+      ...messages.value.map(msg => ({
+        ...msg,
+        role: msg.role
+      }))
     ]
     
     // 为 AI 消息生成唯一 ID

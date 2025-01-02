@@ -12,9 +12,9 @@ RUN npm install
 # 复制源代码
 COPY . .
 
-# 创建环境变量文件
-RUN echo "VITE_APP_PASSWORD=\${APP_PASSWORD}" > .env
-RUN echo "VITE_DEEPSEEK_API_KEY=\${DEEPSEEK_API_KEY}" >> .env
+# 直接在构建时写入环境变量
+ENV VITE_APP_PASSWORD=freestargpt
+ENV VITE_DEEPSEEK_API_KEY=sk-506f19b1b60e4b068ee4f2b1f288986f
 
 # 构建应用
 RUN npm run build
@@ -32,6 +32,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 1006
 
 ENTRYPOINT ["/docker-entrypoint.sh"] 

@@ -5,9 +5,11 @@ export interface ChatSession {
   timestamp: string
 }
 
+export type ChatRole = 'user' | 'assistant' | 'system'
+
 export interface ChatMessage {
   id: number
-  role: 'user' | 'assistant'
+  role: ChatRole
   content: string
   timestamp: string
   status?: 'sending' | 'sent' | 'error'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/theme'
 import { storeToRefs } from 'pinia'
-import { watch, onMounted, watchEffect } from 'vue'
+import { onMounted, watchEffect } from 'vue'
 import type { themes } from '@/styles/theme'
 
 // 更新 CSS 变量的函数
