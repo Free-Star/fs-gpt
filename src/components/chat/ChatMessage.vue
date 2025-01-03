@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import type { ChatMessage } from '@/types/chat'
 import MarkdownIt from 'markdown-it'
 
@@ -85,12 +85,16 @@ const processCodeBlocks = (content: string) => {
 }
 
 // 监听消息内容变化并解析 Markdown
-watch(() => props.message.content, (newContent) => {
+watch(() => props.message.content, async (newContent) => {
   if (props.message.role === 'assistant') {
-    // 预处理代码块
     const processedContent = processCodeBlocks(newContent)
-    // 渲染 Markdown
     displayContent.value = md.render(processedContent.trim())
+    
+    // 等待 DOM 更新后执行滚动
+    await nextTick(() => {
+      const element = document.querySelector('.message-wrapper:last-child')
+      element?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    })
   } else {
     displayContent.value = newContent
   }
@@ -98,9 +102,37 @@ watch(() => props.message.content, (newContent) => {
 
 const isCopied = ref(false)
 
+const fallbackCopy = (text: string) => {
+  // 创建一个临时文本区域
+  const textArea = document.createElement('textarea')
+  textArea.value = text
+  document.body.appendChild(textArea)
+  
+  // 选择文本并尝试复制
+  textArea.select()
+  try {
+    document.execCommand('copy')
+    return true
+  } catch (err) {
+    console.error('回退复制方法失败:', err)
+    return false
+  } finally {
+    document.body.removeChild(textArea)
+  }
+}
+
+// 修改现有的复制消息函数
 const copyMessage = async () => {
   try {
-    await navigator.clipboard.writeText(props.message.content)
+    // 首先尝试使用 Clipboard API
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(props.message.content)
+    } else {
+      // 如果 Clipboard API 不可用，使用回退方法
+      if (!fallbackCopy(props.message.content)) {
+        throw new Error('复制失败')
+      }
+    }
     isCopied.value = true
     setTimeout(() => {
       isCopied.value = false
@@ -110,7 +142,7 @@ const copyMessage = async () => {
   }
 }
 
-// 代码块复制功能
+// 修改代码块复制函数
 const handleClick = async (event: MouseEvent) => {
   const target = event.target as HTMLElement
   const copyBtn = target.closest('.code-copy-btn') as HTMLButtonElement
@@ -118,7 +150,15 @@ const handleClick = async (event: MouseEvent) => {
   if (copyBtn) {
     const code = decodeURIComponent(copyBtn.dataset.code || '')
     try {
-      await navigator.clipboard.writeText(code)
+      // 首先尝试使用 Clipboard API
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(code)
+      } else {
+        // 如果 Clipboard API 不可用，使用回退方法
+        if (!fallbackCopy(code)) {
+          throw new Error('复制失败')
+        }
+      }
       copyBtn.classList.add('copied')
       setTimeout(() => {
         copyBtn.classList.remove('copied')

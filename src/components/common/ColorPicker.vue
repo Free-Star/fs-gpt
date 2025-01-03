@@ -86,7 +86,7 @@ onUnmounted(() => {
   padding: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   animation: slide-left 0.2s ease-out;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .theme-grid {

@@ -42,6 +42,12 @@ const handleKeydown = (e: KeyboardEvent) => {
       <h1>FreeStarGPT</h1>
       <p class="subtitle">请输入访问密码</p>
       
+      <div class="notice">
+        <p>FreeStar温馨提示：</p>
+        <p>完成更新，采用了简洁的UI设计</p>
+        <p>和强大好用deepseek接口</p>
+      </div>
+      
       <form @submit.prevent="handleLogin" class="login-form">
         <input
           v-model="password"
@@ -95,7 +101,7 @@ h1 {
 
 .subtitle {
   color: var(--text-secondary);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .login-form {
@@ -147,5 +153,20 @@ input:focus {
 .login-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.notice {
+  margin-bottom: 24px;
+  padding: 12px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.notice p {
+  margin: 4px 0;
 }
 </style> 

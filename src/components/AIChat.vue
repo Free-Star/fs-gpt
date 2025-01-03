@@ -116,7 +116,7 @@ const handleSendMessage = async (content: string) => {
     const systemMessage: ChatMessage = {
       id: Date.now() * 1000 - 1,
       role: 'system',
-      content: '你是一个友好的AI助手，请用简洁、专业的方式回答问题。',
+      content: '你是FreeStarGPT,一个友好的AI助手，请用简洁、专业的方式回答问题。',
       timestamp: formatTimestamp()
     }
     

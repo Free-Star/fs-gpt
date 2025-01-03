@@ -202,6 +202,8 @@ const handleLogout = () => {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .chat-session {
@@ -371,6 +373,9 @@ const handleLogout = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
 }
 
 .footer-btn {

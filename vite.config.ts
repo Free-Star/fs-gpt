@@ -6,7 +6,10 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig(() => ({
   plugins: [vue()],
   server: {
-    port: 3000
+    port: 3000,
+    headers: {
+      'Permissions-Policy': 'clipboard-write=*'
+    }
   },
   resolve: {
     alias: {
