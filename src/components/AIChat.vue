@@ -240,6 +240,13 @@ const formatTimestamp = () => {
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
+
+// 添加编辑消息的处理函数
+const handleEditMessage = (content: string) => {
+  if (messageInput.value) {
+    messageInput.value.setInputContent(content)
+  }
+}
 </script>
 
 <template>
@@ -276,6 +283,7 @@ const toggleSidebar = () => {
       <MessageList 
         :messages="messages"
         :is-typing="isTyping"
+        @edit="handleEditMessage"
       />
       <MessageInput
         ref="messageInput"

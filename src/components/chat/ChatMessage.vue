@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import type { ChatMessage } from '@/types/chat'
 import MarkdownIt from 'markdown-it'
 
@@ -84,17 +84,48 @@ const processCodeBlocks = (content: string) => {
   }).join('\n')  // 使用单个换行符连接块
 }
 
+// 为当前消息创建一个滚动状态
+const isCurrentMessageScrollInterrupted = ref(false)
+
+// 修改滚轮事件处理函数
+const handleWheel = () => {
+  // 只在当前消息正在发送时设置中断状态
+  if (props.message.role === 'assistant' && props.message.status === 'sending') {
+    isCurrentMessageScrollInterrupted.value = true
+  }
+}
+
+// 在组件挂载时添加事件监听和初始滚动
+onMounted(() => {
+  window.addEventListener('wheel', handleWheel)
+  
+  // 如果是最后一条消息，则滚动到底部
+  if (props.message.status === 'sent') {
+    nextTick(() => {
+      const element = document.querySelector('.message-wrapper:last-child')
+      element?.scrollIntoView({ behavior: 'instant', block: 'end' })
+    })
+  }
+})
+
+// 在组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('wheel', handleWheel)
+})
+
 // 监听消息内容变化并解析 Markdown
 watch(() => props.message.content, async (newContent) => {
   if (props.message.role === 'assistant') {
     const processedContent = processCodeBlocks(newContent)
     displayContent.value = md.render(processedContent.trim())
     
-    // 等待 DOM 更新后执行滚动
-    await nextTick(() => {
-      const element = document.querySelector('.message-wrapper:last-child')
-      element?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    })
+    // 只在未被打断且消息正在发送时执行滚动
+    if (!isCurrentMessageScrollInterrupted.value && props.message.status === 'sending') {
+      await nextTick(() => {
+        const element = document.querySelector('.message-wrapper:last-child')
+        element?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      })
+    }
   } else {
     displayContent.value = newContent
   }
@@ -515,7 +546,7 @@ const handleClick = async (event: MouseEvent) => {
 }
 
 .markdown-body :deep(.code-copy-btn) {
-  padding: 2px 6px;
+  padding: 4px 8px;
   background: transparent;
   border: none;
   border-radius: 4px;
@@ -526,6 +557,21 @@ const handleClick = async (event: MouseEvent) => {
   gap: 4px;
   font-size: 0.85rem;
   transition: all var(--transition-speed);
+}
+
+.markdown-body :deep(.code-copy-btn:hover) {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* 添加复制成功时的样式 */
+.markdown-body :deep(.code-copy-btn.copied) {
+  color: var(--primary);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 添加点击效果 */
+.markdown-body :deep(.code-copy-btn:active) {
+  transform: scale(0.95);
 }
 
 .markdown-body :deep(pre) {

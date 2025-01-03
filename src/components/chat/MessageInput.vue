@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 
 const props = defineProps<{
   isTyping: boolean
@@ -9,34 +9,83 @@ const emit = defineEmits<{
   send: [content: string]
 }>()
 
-const input = ref<HTMLInputElement | null>(null)
+const input = ref<HTMLTextAreaElement | null>(null)
 const inputMessage = ref('')
+
+// 自动调整高度的函数
+const adjustHeight = () => {
+  if (!input.value) return
+  
+  // 重置高度以获取正确的 scrollHeight
+  input.value.style.height = 'auto'
+  
+  // 计算行数
+  const lineHeight = parseInt(getComputedStyle(input.value).lineHeight)
+  const maxHeight = lineHeight * 5 // 最多显示5行
+  
+  // 设置新高度，但不超过最大高度
+  const newHeight = Math.min(input.value.scrollHeight, maxHeight)
+  input.value.style.height = `${newHeight}px`
+}
+
+// 处理输入事件
+const handleInput = () => {
+  adjustHeight()
+}
+
+// 处理按键事件
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    if (e.shiftKey) {
+      // Shift+Enter 换行
+      return
+    }
+    // 普通 Enter 发送
+    e.preventDefault()
+    handleSend()
+  }
+}
 
 const handleSend = () => {
   if (inputMessage.value.trim() && !props.isTyping) {
     emit('send', inputMessage.value)
     inputMessage.value = ''
+    // 重置高度
+    if (input.value) {
+      input.value.style.height = 'auto'
+    }
     // 提交后自动聚焦
     input.value?.focus()
   }
 }
 
+// 添加设置输入内容的方法
+const setInputContent = (content: string) => {
+  inputMessage.value = content
+  nextTick(() => {
+    input.value?.focus()
+    adjustHeight()
+  })
+}
+
 // 暴露聚焦方法给父组件
 defineExpose({
-  focus: () => input.value?.focus()
+  focus: () => input.value?.focus(),
+  setInputContent
 })
 </script>
 
 <template>
   <div class="input-container">
     <div class="input-area">
-      <input 
+      <textarea
         ref="input"
         v-model="inputMessage"
-        @keyup.enter="handleSend"
-        placeholder="给 FS 发送消息"
-        type="text"
+        @input="handleInput"
+        @keydown="handleKeydown"
+        placeholder="给 FS 发送消息 (Shift + Enter 换行)"
         :disabled="isTyping"
+        rows="1"
       />
       <button 
         class="send-btn"
@@ -65,11 +114,11 @@ defineExpose({
   border-radius: 12px;
   padding: 8px 12px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
 }
 
-input {
+textarea {
   flex: 1;
   padding: 8px 12px;
   border: none;
@@ -77,13 +126,35 @@ input {
   color: var(--text-primary);
   background: var(--surface);
   transition: all var(--transition-speed);
+  resize: none;
+  overflow-y: auto;
+  min-height: 40px;
+  line-height: 1.5;
+  font-family: inherit;
 }
 
-input::placeholder {
+textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+textarea::placeholder {
   color: var(--text-secondary);
 }
 
-input:focus {
+textarea:focus {
   outline: none;
 }
 
@@ -99,6 +170,7 @@ input:focus {
   transition: all var(--transition-speed);
   white-space: nowrap;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .send-btn:hover:not(:disabled) {

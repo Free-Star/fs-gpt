@@ -19,6 +19,14 @@ const scrollToBottom = () => {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
   }
 }
+
+const emit = defineEmits<{
+  edit: [content: string]
+}>()
+
+const handleEdit = (content: string) => {
+  emit('edit', content)
+}
 </script>
 
 <template>
@@ -27,6 +35,7 @@ const scrollToBottom = () => {
       v-for="message in messages"
       :key="message.id"
       :message="message"
+      @edit="handleEdit"
     />
   </div>
 </template>
